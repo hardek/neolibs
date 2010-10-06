@@ -1,9 +1,8 @@
--- Hardek's neobot library 0.7.1
-print('Hardek Library Version: 0.7.1')
+-- Hardek's neobot library 0.7.2
+print('Hardek Library Version: 0.7.2')
 
 function waitping(base)
     local ping = $pingaverage or base or 200
-
     wait(2 * ping, 4 * ping)
 end
 
@@ -102,27 +101,46 @@ function refillsofts()
     end
 end
 
-function deposititems(items, from, dest, stacks, stackdest, open)
+function deposititems(dest, stack, from, open, ...)
+    local items = {...}
+    if type(items[1]) == 'table' then items = items[1] end
     if open then opendepot() end
     dest = dest or 'Locker'
-    stackdest = stackdest or 'Locker'
+    stack = stack or 'Locker'
 
-    for j,i in pairs(stacks) do
-        moveitems(i, stackdest)
+    if windowcount(stack) == 0 then
+        openitem(stack, 'Locker', true)
+        waitping()
     end
-    
-    if itemcount(dest) == 0 then return end
-    openitem(dest)
-    waitping()
-    for j,i in pairs(items) do
-        while itemcount(i, 0) > 0 do
-            if emptycount(dest) == 0 then
-                if getsetting('Cavebot/Settings/OpenNextBp') ~= 'no' then
-                    if itemcount(dest) == 0 then return end
-                    openitem(dest)
+
+    if windowcount(dest) == 0 then
+        openitem(dest, 'Locker', true)
+        waitping()
+    end
+
+    destd = windowcount() - 1
+    if stack == dest then stackd = destd else stackd = destd - 1 end
+
+    for i = 1, #items do
+        local continue = true
+        local it = items[i]
+
+        while continue and itemcount(it, from) > 0 do
+            local dd = destd
+            local d = dest
+            if itemproperty(it, ITEM_STACKABLE) then
+                dd = stackd
+                d = stack
+            end
+
+            if emptycount(dd) == 0 then
+                continue = (itemcount(d) > 0)
+                if continue then
+                    openitem(d, dd)
+                    waitping()
                 end
             else
-                moveitems(i, dest, from, emptycount(dest))
+                moveitems(it, dd, from)
                 waitping()
             end
         end
@@ -135,7 +153,7 @@ function dropitemsex(cap, ...)
 
     if $cap < cap then
         for i = 1, #drop do
-            while $cap > cap and itemcount(drop[i]) > 0 do
+            while $cap < cap and itemcount(drop[i]) > 0 do
                 local count = math.ceil((cap - $cap) / itemweight(drop[i]))
                 moveitems(itemid(drop[i]), 'ground', '', count)
             end
@@ -155,11 +173,24 @@ function creatureinfo(creaturename)
 	return creatures_table[table.binaryfind(creatures_table,creaturename:lower(),'name')]
 end
 
-function creaturehp(creaturename)
+function creaturemaxhp(creaturename)
     local cre = creatureinfo(creaturename)
     if cre then return cre.hp end
 	printerror('Monster: '..creaturename..' not found')
     return 0
+end
+
+function creaturehp(creaturename)
+	if type(creaturename) ~= 'userdata' then
+		creaturename = findcreature(creaturename)
+	end
+	local cre = creaturename
+	local creinfo = creatureinfo(creaturename)
+	if not creinfo then
+		printerror('Monster: '..creaturename..' not found')
+		return 0
+	end
+	return cre.hp*100/creinfo.hp
 end
 
 function creatureexp(creaturename)
@@ -191,6 +222,12 @@ function maxdamage(creaturename)
     end
 end
 
+function getelementword(element)
+    local spells = {death = 'mort', fire = 'flam', ice = 'frigo', energy = 'vis', earth = 'tera'}
+    printerror('Element: '..element..' not found')
+    return nil
+end
+
 function bestelement(creaturename)
     local cre = creatureinfo(creaturename)
     if cre then return cre.bestspell end
@@ -200,7 +237,7 @@ end
 
 function bestspell(creaturename)
 	local cre = creatureinfo(creaturename)
-	if cre then return cre.spell end
+	if cre then return 'exori '..getelementword(cre.bestspell) end
 	printerror('Monster: '..creaturename..' not found')
 	return nil
 end
@@ -265,6 +302,7 @@ function itemname(iid)
 	printerror('Item: '..iid..' not found')
     return nil
 end
+
 
 -- information tables
 
@@ -1552,7 +1590,6 @@ items_table = {
     {name = "horned helmet", weight = 51.0, npcvalue = 0, npcprice = 0},
     {name = "horseman helmet", weight = 42.0, npcvalue = 280, npcprice = 0},
     {name = "huge chunk of crude iron", weight = 50.0, npcvalue = 15000, npcprice = 0},
-
     {name = "hunters quiver", weight = 1.32, npcvalue = 80, npcprice = 0},
     {name = "hunting spear", weight = 22.0, npcvalue = 25, npcprice = 0},
     {name = "hydra egg", weight = 50.0, npcvalue = 500, npcprice = 0},
@@ -1625,7 +1662,6 @@ items_table = {
     {name = "kongras shoulderpad", weight = 1.4, npcvalue = 100, npcprice = 0},
     {name = "kosheis ancient amulet", weight = 5.5, npcvalue = 0, npcprice = 0},
     {name = "krimhorn helmet", weight = 51.0, npcvalue = 200, npcprice = 0},
-
     {name = "lamp", weight = 30.0, npcvalue = 0, npcprice = 0},
     {name = "lancer beetle shell", weight = 1.07, npcvalue = 80, npcprice = 0},
     {name = "large trunk", weight = 0.0, npcvalue = 0, npcprice = 0},
@@ -1665,9 +1701,6 @@ items_table = {
     {name = "lock pick", weight = 0.85, npcvalue = 0, npcprice = 50},
     {name = "locker", weight = 0.0, npcvalue = 0, npcprice = 0},
     {name = "longsword", weight = 42.0, npcvalue = 51, npcprice = 0},
-
-
-
     {name = "love potion", weight = 1.8, npcvalue = 0, npcprice = 0},
     {name = "lucky clover amulet", weight = 1.5, npcvalue = 0, npcprice = 0},
     {name = "luminous orb", weight = 0.94, npcvalue = 1000, npcprice = 0},
@@ -1843,7 +1876,6 @@ items_table = {
     {name = "paralyze", weight = 2.1, npcvalue = 0, npcprice = 700},
     {name = "parcel", weight = 18.0, npcvalue = 0, npcprice = 0},
     {name = "parcel (watchtower)", weight = 18.0, npcvalue = 0, npcprice = 0},
-
     {name = "parchment (deathlist)", weight = 2.0, npcvalue = 0, npcprice = 0},
     {name = "parchment (poetry)", weight = 2.0, npcvalue = 0, npcprice = 0},
     {name = "part of a jester doll (left arm)", weight = 1.0, npcvalue = 0, npcprice = 0},
@@ -2273,7 +2305,6 @@ items_table = {
     {name = "the dwarven emperors beard", weight = 0.5, npcvalue = 0, npcprice = 0},
     {name = "the epiphany", weight = 45.0, npcvalue = 0, npcprice = 0},
     {name = "the famous golden bug", weight = 12.5, npcvalue = 0, npcprice = 0},
-
     {name = "handmaidens protector", weight = 35.0, npcvalue = 0, npcprice = 0},
     {name = "the head of a jester doll", weight = 4.0, npcvalue = 0, npcprice = 0},
     {name = "the ironworker", weight = 150.0, npcvalue = 0, npcprice = 0},
@@ -2299,7 +2330,6 @@ items_table = {
     {name = "tibioras box", weight = 42.0, npcvalue = 0, npcprice = 0},
     {name = "time ring", weight = 0.9, npcvalue = 100, npcprice = 0},
     {name = "titan axe", weight = 81.0, npcvalue = 4000, npcprice = 0},
-
     {name = "torch", weight = 5.0, npcvalue = 0, npcprice = 2},
     {name = "torn book", weight = 11.0, npcvalue = 0, npcprice = 0},
     {name = "tortoise egg from nargor", weight = 0.3, npcvalue = 0, npcprice = 0},
@@ -2339,7 +2369,6 @@ items_table = {
     {name = "vampire doll", weight = 9.4, npcvalue = 0, npcprice = 0},
     {name = "vampire dust", weight = 1.0, npcvalue = 100, npcprice = 0},
     {name = "vampire lord token", weight = 0.05, npcvalue = 0, npcprice = 0},
-
     {name = "vampire shield", weight = 38.0, npcvalue = 15000, npcprice = 0},
     {name = "vampire teeth", weight = 0.5, npcvalue = 275, npcprice = 0},
     {name = "vampiric crest", weight = 5.0, npcvalue = 0, npcprice = 0},
@@ -2459,4 +2488,3 @@ items_table = {
     {name = "zaogun flag", weight = 0.98, npcvalue = 600, npcprice =0 },
     {name = "zaogun shoulderplates", weight = 1.03, npcvalue = 150, npcprice = 0},
 }
-

@@ -12,10 +12,16 @@
             <description>Returns a table with information about a creature, {name, exp, hp, ratio, maxdmg, bestspell}.</description>
         </function>
         <function>
-            <name>creaturehp</name>
+            <name>creaturemaxhp</name>
             <parameters>string creaturename</parameters>
             <return>int</return>
             <description>Returns the maximum amount of HP a creature has.</description>
+        </function>
+        <function>
+            <name>creaturehp</name>
+            <parameters>string creaturename</parameters>
+            <return>int</return>
+            <description>Returns the current amount of HP a creature has.</description>
         </function>
         <function>
             <name>creatureexp</name>
@@ -75,7 +81,7 @@
         </function>
         <function>
             <name>itemscosttocap</name>
-            <parameters>string itemnamem int cap</parameters>
+            <parameters>string itemname, int cap</parameters>
             <return>int</return>
             <description>Returns cost when BUYING items from NPCs, as much as needed to reach 'cap' cap (use this to withdraw money before using buyitemstocap, for example).</description>
         </function>
@@ -117,7 +123,7 @@
             <name>buyitemstocap</name>
             <parameters>string itemname, int cap</parameters>
             <return></return>
-            <description>Will buy items 'itemname' until you reach 'cap' capacity, useful for potions or food, for examble.</description>
+            <description>Will buy items 'itemname' until you reach 'cap' capacity, useful for potions or food, for example.</description>
         </function>
         <function>
             <name>depositall</name>
@@ -138,7 +144,7 @@
             <description>Reach and open a depot chest.</description>
         </function>
         <function>
-            <name>moevtoinsist</name>
+            <name>movetoinsist</name>
             <parameters>int x, int y, int z, optional int maxtries=5</parameters>
             <return></return>
             <description>Tries and retries 'maxtries' times to reach the desired location.</description>
@@ -147,13 +153,13 @@
             <name>refillsofts</name>
             <parameters></parameters>
             <return></return>
-            <description>Repairs all visible worn soft boots, considering visible money, will try getting more money on the bank in case you don't have enought with your character.</description>
+            <description>Repairs all visible worn soft boots, considering visible money, will try getting more money on the bank in case you don't have enough with your character.</description>
         </function>
         <function>
             <name>deposititems</name>
-            <parameters>table items, string from, string dest, table stacks, optional bool open</parameters>
+            <parameters>dest, stack, from, open, item1, item2, ...</parameters>
             <return></return>
-            <description>Deposits all items on depot, stacks are for items that you want to separate (generally stackable items), the boolean 'open' parameter is to set if the bot should open the depot chest or not.</description>
+            <description>Deposits all {...} items on depot, separating stackables from normal ones, the boolean 'open' parameter is to set if the bot should open the depot chest or not. Parameter dest is the name of the container for normal items, parameter stack is the name of the container for stackable items/</description>
         </function>
         <function>
             <name>dropitemsex</name>
@@ -176,10 +182,36 @@
             <description>Calculates the vocation based on your max HP.</description>
         </function>
         <function>
+            <name>getelementword</name>
+            <parameters>string element</parameters>
+            <return>string</return>
+            <description>Returns the word for the passed element. (vis, flam, frigo, mort, tera, san)</description>
+        </function>
+        <function>
             <name>vocation</name>
             <parameters></parameters>
             <return>Characters vocation {Knight, Paladin or Mage}</return>
             <description>Alias for getvocation()</description>
         </function>
     </help>
+    <examples>
+        <category name="Cavebot">
+            <example name="Deposit items">
+                <description>This action will deposit your desired items on depot.</description>
+                <content name="depositloot">
+                    <hScript>from       = '!!from!!'
+dest       = '!!dest!!'
+deststack  = '!!deststack!!'
+items      = {'royal helmet', 'dragon scale mail'}
+stacks     = {'red dragon leather', 'small sapphire'}
+deposititems(items, 0, dest, stacks, deststack, !!opendp!!</hScript>
+                    <input var="!!from!!" default="">Enter name of the container that your character looted the items (leave blank for anyone):</input>
+                    <input var="!!dest!!" default="yellow backpack">Enter the name of the container you wish to put items in the 'items' list:</input>
+                    <input var="!!deststack!!" default="locker">Enter the name of the container you wish to put items in the 'stack' list (stackable items):</input>
+                    <input var="!!opendp!!" default="true">true if you want the bot to open a depot automatically, no if you don't:</input>
+                    <type>a</type>
+                </content>
+            </example>
+        </category>
+    </examples>
 </libfile>
