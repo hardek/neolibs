@@ -224,6 +224,7 @@ end
 
 function getelementword(element)
     local spells = {death = 'mort', fire = 'flam', ice = 'frigo', energy = 'vis', earth = 'tera'}
+    if spells[element] then return spells[element] end
     printerror('Element: '..element..' not found')
     return nil
 end
