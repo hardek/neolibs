@@ -201,13 +201,10 @@
                 <content name="depositloot">
                     <hScript>from       = '!!from!!'
 dest       = '!!dest!!'
-deststack  = '!!deststack!!'
-items      = {'royal helmet', 'dragon scale mail'}
-stacks     = {'red dragon leather', 'small sapphire'}
-deposititems(items, 0, dest, stacks, deststack, !!opendp!!</hScript>
+items      = {'royal helmet', 'dragon scale mail', 'small sapphire'}
+deposititems(dest, stack, from, !!opendp!!, items)</hScript>
                     <input var="!!from!!" default="">Enter name of the container that your character looted the items (leave blank for anyone):</input>
                     <input var="!!dest!!" default="yellow backpack">Enter the name of the container you wish to put items in the 'items' list:</input>
-                    <input var="!!deststack!!" default="locker">Enter the name of the container you wish to put items in the 'stack' list (stackable items):</input>
                     <input var="!!opendp!!" default="true">true if you want the bot to open a depot automatically, no if you don't:</input>
                     <type>a</type>
                 </content>
