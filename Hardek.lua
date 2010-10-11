@@ -219,8 +219,7 @@ function maxdamage(creaturename)
             total = total + maxdamage(c.name)
         end
         return total
-    end
-end
+    en
 
 function getelementword(element)
     local spells = {death = 'mort', fire = 'flam', ice = 'frigo', energy = 'vis', earth = 'tera'}
@@ -290,7 +289,7 @@ end
 function itemscosttocap(itemname, cap)
 	local item = iteminfo(itemname)
 	if item then
-		return item.cost * math.floor((($cap - cap) / item.weight))
+		return item.npcprice * math.floor((($cap - cap) / item.weight))
 	end
 	printerror('Item: '..itemname..' not found')
 	return 0
