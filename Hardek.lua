@@ -1,5 +1,5 @@
--- Hardek's neobot library 0.7.2
-print('Hardek Library Version: 0.7.2')
+-- Hardek's neobot library 0.7.3
+print('Hardek Library Version: 0.7.3')
 
 function waitping(base)
     local ping = $pingaverage or base or 200
@@ -219,7 +219,8 @@ function maxdamage(creaturename)
             total = total + maxdamage(c.name)
         end
         return total
-    en
+    end
+end
 
 function getelementword(element)
     local spells = {death = 'mort', fire = 'flam', ice = 'frigo', energy = 'vis', earth = 'tera'}
