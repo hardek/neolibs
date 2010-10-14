@@ -193,6 +193,12 @@
             <return>Characters vocation {Knight, Paladin or Mage}</return>
             <description>Alias for getvocation()</description>
         </function>
+        <function>
+            <name>trapped</name>
+            <parameters></parameters>
+            <return>bool</return>
+            <description>Checks if you are trapped, returns true if you are, false if you are not.</description>
+        </function>
     </help>
     <examples>
         <category name="Cavebot">

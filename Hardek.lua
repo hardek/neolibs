@@ -321,6 +321,18 @@ function itemname(iid)
     return nil
 end
 
+function trapped()
+    for i = -2, 2, 2 do
+        for j = -2, 2, 2 do
+            local cx = $posx + i
+            local cy = $posy + j
+            if tilereachable(cx, cy, $posz) then return false end
+        end
+    end
+
+    return true
+end
+
 
 -- information tables
 
