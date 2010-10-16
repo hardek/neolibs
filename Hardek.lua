@@ -1,5 +1,5 @@
--- Hardek's neobot library 0.8.0
-print('Hardek Library Version: 0.8.0')
+-- Hardek's neobot library 0.9.0
+print('Hardek Library Version: 0.9.0')
 
 function waitping(base)
     local base = base or 200
@@ -29,7 +29,7 @@ function withdraw(amount, npc, sayhi)
     waitping()
     foreach newmessage m do
         if m.content == 'There is not enough gold on your account.' then
-            if (not npc) or (m.sender == npc) then
+            if (not npc) or (npc == '') or (m.sender == npc) then
                 return false
             end
         end
@@ -306,12 +306,12 @@ function buyitemstocap(itemname, cap)
 end
 
 function itemscosttocap(itemname, cap)
-	local item = iteminfo(itemname)
-	if item then
-		return item.npcprice * math.floor((($cap - cap) / item.weight))
-	end
-	printerror('Item: '..itemname..' not found')
-	return 0
+    local item = iteminfo(itemname)
+    if item then
+        return item.npcprice * math.floor((($cap - cap) / item.weight))
+    end
+    printerror('Item: '..itemname..' not found')
+    return 0
 end
 
 function itemname(iid)
@@ -333,8 +333,121 @@ function trapped()
     return true
 end
 
+function euclideandist(sx, sy, dx, dy)
+    return math.sqrt(math.pow(dx - sx, 2) + math.pow(dy - sy, 2))
+end
+
+function leavetrap(spell)
+    spell = spell or 'none'
+    local cr = nil
+    local distmin = 100
+    local sp = ''
+    local cb = $cavebot
+
+    if cb and trapped() then setcavebot('off') end
+    while trapped() do
+        wait(1000)
+        foreach creature c "ms" do
+            if c.dist == 1 then
+                if cb then
+                    if not cr then cr = c end
+                    local dist = euclideandist($wptx, $wpty, c.posx, c.posy)
+                    if dist < distmin then
+                        distmin = dist
+                        cr = c
+                    end
+                else
+                    cr = c
+                    break
+                end
+            end
+        end
+        attack(cr)
+        if spell ~= 'none' then
+            if spell == 'strike' then sp = bestspell(cr.name) else sp = spell end
+            cast(sp)
+        end
+    end
+    if cb then setcavebot('on') end
+end
+
+function getplayerskill()
+    local weaponType = findweapontype()
+    local playerVocation = vocation()
+    if (playerVocation == 'knight') then
+        if (weaponType == 'club') then
+            return {$club, $clubpc}
+        elseif (weaponType == 'sword') then
+            return {$sword, $swordpc}
+        elseif (weaponType == 'axe') then
+            return {$axe, $axepc}
+        end
+    elseif (playerVocation == 'paladin') then
+        return {$distance, $distancepc}
+    elseif (playerVocation == 'mage' or playerVocation == 'druid' or playerVocation == 'sorcerer') then
+        if ($club > $sword and $axe) then
+            return {$club, $clubpc}
+        elseif ($sword > $club and $axe) then
+            return {$sword, $swordpc}
+        elseif ($axe > $club and $sword) then
+            return {$axe, $axepc}
+        end
+    end
+end
+
+function spelldamage(spell, level, mlevel, skill)
+    level = level or $level
+    mlevel = mlevel or $mlevel
+    skill = skill or getplayerskill()[1]
+    local sp = spell:gsub(' ', '_')
+    if not spellformulas[sp] then
+        printerror('Spell: '..spell..' not found.')
+        return nil
+    end
+    return spellformulas[sp](level, mlevel, skill)
+end
+
 
 -- information tables
+
+spellformulas = {
+    beserk              = function(a, b, c) return {((a + b) * 0.5 + (c / 5)), ((a + b) * 1.5 + (c / 5))} end,
+    whirlwind_throw     = function(a, b, c) return {(a + b) / 3 + c / 5, a + b + c / 5} end,
+    fierce_beserk       = function(a, b, c) return {((a + b * 2) * 1.1 + (c / 5)), ((a + b * 2) * 3 + (c / 5))} end,
+    etheral_spear       = function(a, b) return {(a + 25) / 3 + b / 5, (a + 25 + b / 5)} end,
+    strike              = function(l, m) return {0.2 * l + 1.403 * m + 08, 0.2 * l + 2.203 * m + 13} end,
+    divine_missile      = function(l, m) return {0.2 * l + 1.790 * m + 11, 0.2 * l + 3.000 * m + 18} end,
+    ice_wave            = function(l, m) return {0.2 * l + 0.810 * m + 04, 0.2 * l + 2.000 * m + 12} end,
+    fire_wave           = function(l, m) return {0.2 * l + 1.250 * m + 04, 0.2 * l + 2.000 * m + 12} end,
+    light_magic_missile = function(l, m) return {0.2 * l + 0.400 * m + 02, 0.2 * l + 0.810 * m + 04} end,
+    heavy_magic_missile = function(l, m) return {0.2 * l + 0.810 * m + 04, 0.2 * l + 1.590 * m + 10} end,
+    stalagmite          = function(l, m) return {0.2 * l + 0.810 * m + 04, 0.2 * l + 1.590 * m + 10} end,
+    icicle              = function(l, m) return {0.2 * l + 1.810 * m + 10, 0.2 * l + 3.000 * m + 18} end,
+    fireball            = function(l, m) return {0.2 * l + 1.810 * m + 10, 0.2 * l + 3.000 * m + 18} end,
+    holy_missile        = function(l, m) return {0.2 * l + 1.790 * m + 11, 0.2 * l + 3.750 * m + 24} end,
+    sudden_death        = function(l, m) return {0.2 * l + 4.605 * m + 28, 0.2 * l + 7.395 * m + 46} end,
+    thunderstorm        = function(l, m) return {0.2 * l + 1.000 * m + 06, 0.2 * l + 2.600 * m + 16} end,
+    stone_shower        = function(l, m) return {0.2 * l + 1.000 * m + 06, 0.2 * l + 2.600 * m + 16} end,
+    avalanche           = function(l, m) return {0.2 * l + 1.200 * m + 07, 0.2 * l + 2.800 * m + 17} end,
+    great_fireball      = function(l, m) return {0.2 * l + 1.200 * m + 07, 0.2 * l + 2.800 * m + 17} end,
+    explosion           = function(l, m) return {0.2 * l + 0.0 * m, 0.2 * l + 4.8 * m} end,
+    energy_beam         = function(l, m) return {0.2 * l + 2.5 * m, 0.2 * l + 4.0 * m} end,
+    great_energy_beam   = function(l, m) return {0.2 * l + 4.0 * m, 0.2 * l + 7.0 * m} end,
+    divine_caldera      = function(l, m) return {0.2 * l + 4.0 * m, 0.2 * l + 6.0 * m} end,
+    terra_wave          = function(l, m) return {0.2 * l + 3.5 * m, 0.2 * l + 7.0 * m} end,
+    energy_wave         = function(l, m) return {0.2 * l + 4.5 * m, 0.2 * l + 9.0 * m} end,
+    heal_friend         = function(l, m) return {0.2 * l + 010 * m, 0.2 * l + 014 * m} end,
+    rage_of_the_skies   = function(l, m) return {0.2 * l + 5.0 * m, 0.2 * l + 012 * m} end,
+    hells_core          = function(l, m) return {0.2 * l + 7.0 * m, 0.2 * l + 014 * m} end,
+    wrath_of_nature     = function(l, m) return {0.2 * l + 5.0 * m, 0.2 * l + 010 * m} end,
+    eternal_winter      = function(l, m) return {0.2 * l + 6.0 * m, 0.2 * l + 012 * m} end,
+    divine_healing      = function(l, m) return {0.2 * l + 18.5 * m, 0.2 * l + 025 * m} end,
+    light_healing       = function(l, m) return {0.2 * l + 1.400 * m + 08, 0.2 * l + 1.795 * m + 11} end,
+    intense_healing     = function(l, m) return {0.2 * l + 3.184 * m + 20, 0.2 * l + 5.590 * m + 35} end,
+    ultimate_healing    = function(l, m) return {0.2 * l + 7.220 * m + 44, 0.2 * l + 12.79 * m + 79} end,
+    wound_cleansing     = function(l, m) return {0.2 * l + 4.000 * m + 25, 0.2 * l + 7.750 * m + 50} end,
+    mass_healing        = function(l, m) return {0.2 * l + 5.700 * m + 26, 0.2 * l + 10.43 * m + 62} end,
+}
 
 creatures_table = {
     {name = "achad", exp = 70, hp = 185, ratio = 0.378, maxdmg = 80, bestspell = "death"},

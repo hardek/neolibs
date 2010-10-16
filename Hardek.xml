@@ -117,6 +117,12 @@
             <return></return>
             <description>Simply an alias for listas('dontlist').</description>
         </function>
+        <function>
+            <name>euclideandist</name>
+            <parameters>sx, sy, dx, dy</parameters>
+            <return>float</return>
+            <description>Will calculate the euclidean distance between {sx, sy} and {dx, dy}.</description>
+        </function>
         <title>Cavebot Functions</title>
         <text>The following functions are very useful for caveboting, like buying items, refilling supplies depositing loot.</text>
         <function>
@@ -198,6 +204,24 @@
             <parameters></parameters>
             <return>bool</return>
             <description>Checks if you are trapped, returns true if you are, false if you are not.</description>
+        </function>
+        <function>
+            <name>leavetrap</name>
+            <parameters>string spell</parameters>
+            <return></return>
+            <description>Checks if you are trapped, and tries to escape, use it with an auto bind (will cast spell if you pass one, pass strike so it will choose the best mage strike to use).</description>
+        </function>
+        <function>
+            <name>getplayerskill</name>
+            <parameters></parameters>
+            <return>table</return>
+            <description>Will return the characters skill (sword, club, axe or distance) value on a table {$skill, $skillpc}.</description>
+        </function>
+        <function>
+            <name>spelldamage</name>
+            <parameters>string spellname, optional level, optional mlevel, optional skill</parameters>
+            <return>table</return>
+            <description>Will return the min and max damage you can deal with the spell, pass the spell name, not words, i.e. energy wave or rage of the skies. Returns a table {min_damage, max_damage}.</description>
         </function>
     </help>
     <examples>
