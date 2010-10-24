@@ -1,5 +1,5 @@
--- Hardek's neobot library 0.9.1
-print('Hardek Library Version: 0.9.1')
+-- Hardek's neobot library 0.9.2
+print('Hardek Library Version: 0.9.2')
 
 function waitping(base)
     local base = base or 200
@@ -143,6 +143,7 @@ function deposititems(dest, stack, from, open, ...)
     if open and windowcount('locker') == 0 then opendepot() waitping() end
     dest = dest or 'locker'
     stack = stack or 'locker'
+    if type(from) == 'string' then from = {from} end
     if type(dest) == 'string' then dest = dest:lower() end
     if type(stack) == 'string' then stack = stack:lower() end
 
@@ -153,13 +154,17 @@ function deposititems(dest, stack, from, open, ...)
 
     for i = 1, #items do
         if itemproperty(items[i], ITEM_STACKABLE) then
-            __dp_item(items[i], from, stack, stackd)
+            for i = 1, #from do
+                __dp_item(items[i], from[i], stack, stackd)
+            end
         end
     end
 
     for i = 1, #items do
         if not itemproperty(items[i], ITEM_STACKABLE) then
-            __dp_item(items[i], from, dest, destd)
+            for i = 1, #from do
+                __dp_item(items[i], from[i], dest, destd)
+            end
         end
     end
 end
@@ -187,10 +192,12 @@ function goback()
 end
 
 function creatureinfo(creaturename)
-	return creatures_table[table.binaryfind(creatures_table,creaturename:lower(),'name')]
+    if creaturename == '' then return nil end
+    return creatures_table[table.binaryfind(creatures_table,creaturename:lower(),'name')]
 end
 
 function creaturemaxhp(creaturename)
+    if creaturename == '' then return 0 end
     local cre = creatureinfo(creaturename)
     if cre then return cre.hp end
 	printerror('Monster: '..creaturename..' not found')
@@ -198,19 +205,21 @@ function creaturemaxhp(creaturename)
 end
 
 function creaturehp(creaturename)
-	if type(creaturename) ~= 'userdata' then
-		creaturename = findcreature(creaturename)
-	end
-	local cre = creaturename
-	local creinfo = creatureinfo(creaturename)
-	if not creinfo then
-		printerror('Monster: '..creaturename..' not found')
-		return 0
-	end
-	return cre.hp*100/creinfo.hp
+    if creaturename == '' then return 0 end
+    if type(creaturename) ~= 'userdata' then
+        creaturename = findcreature(creaturename)
+    end
+    local cre = creaturename
+    local creinfo = creatureinfo(creaturename)
+    if not creinfo then
+        printerror('Monster: '..creaturename..' not found')
+        return 0
+    end
+    return cre.hp*100/creinfo.hp
 end
 
 function creatureexp(creaturename)
+    if creaturename == '' then return 0 end
     local cre = creatureinfo(creaturename)
     if cre then return cre.exp end
 	printerror('Monster: '..creaturename..' not found')
@@ -218,6 +227,7 @@ function creatureexp(creaturename)
 end
 
 function expratio(creaturename)
+    if creaturename == '' then return 0 end
     local cre = creatureinfo(creaturename)
     if cre then return cre.ratio end
 	printerror('Monster: '..creaturename..' not found')
@@ -225,6 +235,7 @@ function expratio(creaturename)
 end
 
 function maxdamage(creaturename)
+    if creaturename == '' then return 0 end
     if creaturename then
         local cre = creatureinfo(creaturename)
         if cre then return cre.maxdmg end
@@ -247,6 +258,7 @@ function getelementword(element)
 end
 
 function bestelement(creaturename)
+    if creaturename == '' then return nil end
     local cre = creatureinfo(creaturename)
     if cre then return cre.bestspell end
 	printerror('Monster: '..creaturename..' not found')
@@ -254,18 +266,19 @@ function bestelement(creaturename)
 end
 
 function bestspell(creaturename)
-	local cre = creatureinfo(creaturename)
-	if cre then return 'exori '..getelementword(cre.bestspell) end
-	printerror('Monster: '..creaturename..' not found')
-	return nil
+    if creaturename == '' then return nil end
+    local cre = creatureinfo(creaturename)
+    if cre then return 'exori '..getelementword(cre.bestspell) end
+    printerror('Monster: '..creaturename..' not found')
+    return nil
 end
 
 function iteminfo(itemname)
-	if type(itemname) == 'string' then
-		return items_table[table.binaryfind(items_table,itemname:lower(),'name')]
-	else
-		return items_table_id[table.binaryfind(items_table_id,itemname,'id')]
-	end
+    if type(itemname) == 'string' then
+        return items_table[table.binaryfind(items_table,itemname:lower(),'name')]
+    else
+        return items_table_id[table.binaryfind(items_table_id,itemname,'id')]
+    end
 end
 
 function itemweight(itemname)
