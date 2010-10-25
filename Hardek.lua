@@ -154,16 +154,16 @@ function deposititems(dest, stack, from, open, ...)
 
     for i = 1, #items do
         if itemproperty(items[i], ITEM_STACKABLE) then
-            for i = 1, #from do
-                __dp_item(items[i], from[i], stack, stackd)
+            for j = 1, #from do
+                __dp_item(items[i], from[j], stack, stackd)
             end
         end
     end
 
     for i = 1, #items do
         if not itemproperty(items[i], ITEM_STACKABLE) then
-            for i = 1, #from do
-                __dp_item(items[i], from[i], dest, destd)
+            for j = 1, #from do
+                __dp_item(items[i], from[j], dest, destd)
             end
         end
     end
@@ -335,13 +335,13 @@ function itemname(iid)
 end
 
 function trapped()
-    for i = -2, 2, 2 do
-        for j = -2, 2, 2 do
-            local cx = $posx + i
-            local cy = $posy + j
-            if tilereachable(cx, cy, $posz) then return false end
+        for i = -2, 2 do
+            for j = -2, 2 do
+                local cx = $posx + i
+                local cy = $posy + j
+                if tilereachable(cx, cy, $posz) then return false end
+            end
         end
-    end
 
     return true
 end
