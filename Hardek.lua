@@ -1,5 +1,5 @@
--- Hardek's neobot library 0.9.2
-print('Hardek Library Version: 0.9.2')
+-- Hardek's neobot library 0.9.3
+print('Hardek Library Version: 0.9.3')
 
 function waitping(base)
     local base = base or 200
@@ -143,7 +143,7 @@ function deposititems(dest, stack, from, open, ...)
     if open and windowcount('locker') == 0 then opendepot() waitping() end
     dest = dest or 'locker'
     stack = stack or 'locker'
-    if type(from) == 'string' then from = {from} end
+    if type(from) ~= 'table' then from = {from} end
     if type(dest) == 'string' then dest = dest:lower() end
     if type(stack) == 'string' then stack = stack:lower() end
 
