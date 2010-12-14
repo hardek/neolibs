@@ -43,9 +43,21 @@
         </function>
         <function>
             <name>bestelement</name>
+            <parameters>string creaturename, optional boolean strongonly</parameters>
+            <return>string</return>
+            <description>Returns the creature's weakness (fire, ice, earth, energy, death, physical).</description>
+        </function>
+        <function>
+            <name>beststrongstrike</name>
             <parameters>string creaturename</parameters>
             <return>string</return>
-            <description>Returns the creature's weakness (fire, ice, earth, energy, death).</description>
+            <description>Returns the best STRONG strike spell against the creature.</description>
+        </function>
+        <function>
+            <name>beststrike</name>
+            <parameters>string creaturename</parameters>
+            <return>string</return>
+            <description>Returns the best strike spell against the creature.</description>
         </function>
         <function>
             <name>bestspell</name>
@@ -56,40 +68,10 @@
         <title>Item Functions</title>
         <text>The following functions are concerned with items information.</text>
         <function>
-            <name>iteminfo</name>
-            <parameters>string itemname</parameters>
-            <return>table</return>
-            <description>Returns a table with information about an item, {name, weight, npcvalue, npcprice}.</description>
-        </function>
-        <function>
-            <name>itemname</name>
-            <parameters>string itemid</parameters>
-            <return>string</return>
-            <description>Returns the name associated with itemid.</description>
-        </function>
-        <function>
-            <name>itemweight</name>
-            <parameters>string itemname</parameters>
-            <return>float</return>
-            <description>Returns the weight in 'oz' of the item.</description>
-        </function>
-        <function>
-            <name>itemcost</name>
-            <parameters>string itemname</parameters>
-            <return>int</return>
-            <description>Returns cost when BUYING item from NPCs.</description>
-        </function>
-        <function>
             <name>itemscosttocap</name>
             <parameters>string itemname, int cap</parameters>
             <return>int</return>
             <description>Returns cost when BUYING items from NPCs, as much as needed to reach 'cap' cap (use this to withdraw money before using buyitemstocap, for example).</description>
-        </function>
-        <function>
-            <name>itemvalue</name>
-            <parameters>string itemname</parameters>
-            <return>int</return>
-            <description>Returns price when SELLING item to NPCs.</description>
         </function>
         <title>Helper Functions</title>
         <text>The following functions will help you making everyday scripts.</text>
@@ -101,7 +83,7 @@
         </function>
         <function>
             <name>timeleft</name>
-            <parameters>string t</parameters>
+            <parameters>string t, optional int ctime=currenttime()</parameters>
             <return>int</return>
             <description>Returns the number of seconds left to t. Example: timeleft('6:00') will return the number of seconds from now to 6am</description>
         </function>
@@ -182,34 +164,16 @@
         <title>Player Functions</title>
         <text>The following functions are concerned with your characters information.</text>
         <function>
-            <name>getvocation</name>
-            <parameters></parameters>
-            <return>Characters vocation {Knight, Paladin or Mage}</return>
-            <description>Calculates the vocation based on your max HP.</description>
-        </function>
-        <function>
             <name>getelementword</name>
             <parameters>string element</parameters>
             <return>string</return>
             <description>Returns the word for the passed element. (vis, flam, frigo, mort, tera, san)</description>
         </function>
         <function>
-            <name>vocation</name>
-            <parameters></parameters>
-            <return>Characters vocation {Knight, Paladin or Mage}</return>
-            <description>Alias for getvocation()</description>
-        </function>
-        <function>
             <name>trapped</name>
             <parameters></parameters>
             <return>bool</return>
             <description>Checks if you are trapped, returns true if you are, false if you are not.</description>
-        </function>
-        <function>
-            <name>leavetrap</name>
-            <parameters>string spell</parameters>
-            <return></return>
-            <description>Checks if you are trapped, and tries to escape, use it with an auto bind (will cast spell if you pass one, pass strike so it will choose the best mage strike to use).</description>
         </function>
         <function>
             <name>getplayerskill</name>
